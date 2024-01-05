@@ -2,9 +2,14 @@ import { useState } from "react"
 
 function App() {
   const [turnOrderDeck, setTurnOrderDeck] = useState(
-    ["Player 1", "Player 2", "Player 3", "Player 4", "Nemesis", "Nemesis"].sort(
-      () => Math.random() - 0.5
-    )
+    [
+      "Player 1",
+      "Player 2",
+      "Player 3",
+      "Player 4",
+      "Nemesis 1",
+      "Nemesis 2",
+    ].sort(() => Math.random() - 0.5)
   )
 
   const [historyDeck, setHistoryDeck] = useState([])
@@ -53,20 +58,51 @@ function App() {
   }
 
   /**
+   * MAY NOT NEED
+   * - Resets the historyDeck
+   * - Resets the cardNow
    * - Resets the turnOrderDeck with all 6 cards shuffled
    * - Updates nextCard to turnOrderDeck[0]
    */
-  function resetDeck() {
-    let closeDeck = [
-      "Player 1",
-      "Player 2",
-      "Player 3",
-      "Player 4",
-      "Nemesis",
-      "Nemesis",
-    ].sort(() => Math.random() - 0.5)
+  // function resetDeck() {
+  //   setHistoryDeck([])
+  //   setCardNow("")
+  //   let closeDeck = [
+  //     "Player 1",
+  //     "Player 2",
+  //     "Player 3",
+  //     "Player 4",
+  //     "Nemesis 1",
+  //     "Nemesis 2",
+  //   ].sort(() => Math.random() - 0.5)
+  //   setTurnOrderDeck(closeDeck)
+  //   setNextCard(closeDeck[0])
+  // }
+
+  /**
+   * - Puts revealed top card to the bottom of the remaining deck
+   */
+  function moveTopCardToBottom() {
+    let closeDeck = [...turnOrderDeck]
+    let card = closeDeck[0]
+    closeDeck.splice(0, 1)
+    closeDeck.push(card)
     setTurnOrderDeck(closeDeck)
-    setNextCard(closeDeck[0])
+  }
+
+  /**
+   * - Adds selected card into the turnOrderDeck
+   * - Removes selected card from the historyDeck
+   */
+  function shuffleBackIntoTurnOrderDeck(card) {
+    let closeDeck = [...turnOrderDeck]
+    closeDeck.push(card)
+    closeDeck.sort(() => Math.random() - 0.5)
+    setTurnOrderDeck(closeDeck)
+
+    let openDeck = [...historyDeck]
+    openDeck.splice(openDeck.indexOf(card), 1)
+    setHistoryDeck(openDeck)
   }
 
   function debug() {
@@ -76,12 +112,25 @@ function App() {
   // HTML
   return (
     <div>
-      <div>historyDeck: {historyDeck}</div>
+      <div>
+        historyDeck:
+        {historyDeck.map((card) => {
+          return (
+            <button
+              key={card}
+              onClick={() => shuffleBackIntoTurnOrderDeck(card)}
+            >
+              {card}
+            </button>
+          )
+        })}
+      </div>
       <div>cardNow: {cardNow}</div>
       <div>nextCard: {nextCard}</div>
       <button onClick={drawCard}>Draw a Card</button>
       <button onClick={shuffleDeck}>Shuffle Deck</button>
-      <button onClick={resetDeck}>Reset Deck</button>
+      {/* <button onClick={resetDeck}>Reset Deck</button> */}
+      <button onClick={moveTopCardToBottom}>Move Top Card to Bottom</button>
       <button onClick={debug}>debug</button>
     </div>
   )
